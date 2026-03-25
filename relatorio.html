@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório — Quiz de Design Gráfico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0e0c0a;
+    --paper: #f5f0e8;
+    --cream: #ede8de;
+    --accent: #c94a2b;
+    --gold: #b8941f;
+    --gold-bg: #fdf6e3;
+    --silver: #7a7265;
+    --silver-bg: #f0ece3;
+    --bronze: #8b5e3c;
+    --bronze-bg: #f5ede4;
+    --correct: #2a6b41;
+    --correct-bg: #e6f2eb;
+    --wrong: #b03020;
+    --wrong-bg: #faeae7;
+    --muted: #7a7265;
+    --border: rgba(14,12,10,0.12);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+  /* HEADER */
+  .page-header {
+    border-bottom: 1px solid var(--border);
+    padding: clamp(1.5rem,4vw,3rem) clamp(1.5rem,4vw,3rem) 0;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; padding-bottom: 2rem; }
+  .header-left { }
+  .eyebrow { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: .75rem; display: flex; align-items: center; gap: 10px; }
+  .eyebrow::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .page-title { font-family: var(--serif); font-size: clamp(2rem,5vw,4rem); font-weight: 700; line-height: .95; letter-spacing: -.02em; }
+  .page-title em { font-style: italic; font-weight: 400; color: var(--accent); }
+  .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; padding-top: .5rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border: 1px solid var(--border);
+    background: transparent; font-family: var(--sans); font-size: 12px;
+    font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+    cursor: pointer; color: var(--ink); transition: all .15s;
+  }
+  .btn:hover { background: var(--cream); border-color: var(--ink); }
+  .btn.danger { border-color: var(--wrong); color: var(--wrong); }
+  .btn.danger:hover { background: var(--wrong-bg); }
+  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
+  .stat-cell { background: var(--paper); padding: 1.5rem 2rem; }
+  .stat-label { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-family: var(--serif); font-size: clamp(1.8rem,4vw,3rem); font-weight: 700; line-height: 1; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* MAIN */
+  .main { max-width: 1100px; margin: 0 auto; padding: clamp(2rem,4vw,4rem) clamp(1.5rem,4vw,3rem); }
+
+  /* EMPTY */
+  .empty-state { text-align: center; padding: 5rem 2rem; }
+  .empty-icon { font-family: var(--serif); font-size: 6rem; color: var(--cream); margin-bottom: 1.5rem; line-height: 1; }
+  .empty-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; margin-bottom: .75rem; }
+  .empty-desc { color: var(--muted); font-size: 15px; max-width: 38ch; margin: 0 auto 2rem; font-weight: 300; line-height: 1.7; }
+
+  /* SECTION */
+  .section { margin-bottom: 3rem; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .section-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 700; }
+  .section-count { font-size: 13px; color: var(--muted); }
+
+  /* RANKING */
+  .ranking-list { display: flex; flex-direction: column; gap: 8px; }
+  .rank-card {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    align-items: center; gap: 16px;
+    border: 1px solid var(--border); padding: 16px 20px;
+    transition: border-color .15s; cursor: pointer;
+    background: var(--paper);
+  }
+  .rank-card:hover { border-color: var(--ink); background: var(--cream); }
+  .rank-card.rank-1 { border-color: var(--gold); background: var(--gold-bg); }
+  .rank-card.rank-2 { border-color: #999; background: var(--silver-bg); }
+  .rank-card.rank-3 { border-color: var(--bronze); background: var(--bronze-bg); }
+  .rank-pos { font-family: var(--serif); font-size: 2rem; font-weight: 700; text-align: center; line-height: 1; }
+  .rank-1 .rank-pos { color: var(--gold); }
+  .rank-2 .rank-pos { color: var(--silver); }
+  .rank-3 .rank-pos { color: var(--bronze); }
+  .rank-pos-default { color: var(--cream); }
+  .rank-medal { font-size: 1.4rem; }
+  .rank-info { }
+  .rank-name { font-size: 16px; font-weight: 500; margin-bottom: 3px; }
+  .rank-date { font-size: 12px; color: var(--muted); }
+  .rank-score-wrap { text-align: right; }
+  .rank-score { font-family: var(--serif); font-size: 2rem; font-weight: 700; line-height: 1; }
+  .rank-1 .rank-score { color: var(--gold); }
+  .rank-2 .rank-score { color: var(--silver); }
+  .rank-3 .rank-score { color: var(--bronze); }
+  .rank-pct { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .rank-bar-wrap { margin-top: 6px; height: 2px; background: var(--border); width: 80px; margin-left: auto; }
+  .rank-bar { height: 2px; background: var(--accent); transition: width .5s; }
+  .rank-1 .rank-bar { background: var(--gold); }
+  .rank-2 .rank-bar { background: var(--silver); }
+  .rank-3 .rank-bar { background: var(--bronze); }
+
+  /* QUESTION ANALYSIS */
+  .q-analysis { display: flex; flex-direction: column; gap: 12px; }
+  .qa-row { border: 1px solid var(--border); padding: 16px 20px; }
+  .qa-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .qa-text { font-size: 14px; font-weight: 500; flex: 1; line-height: 1.4; }
+  .qa-stats { display: flex; gap: 12px; align-items: center; white-space: nowrap; }
+  .qa-stat { font-size: 12px; }
+  .qa-stat.good { color: var(--correct); font-weight: 500; }
+  .qa-stat.bad { color: var(--wrong); font-weight: 500; }
+  .qa-bar-row { display: flex; align-items: center; gap: 10px; }
+  .qa-bar-bg { flex: 1; height: 6px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+  .qa-bar-fill { height: 6px; border-radius: 3px; transition: width .6s; }
+  .qa-bar-label { font-size: 11px; color: var(--muted); min-width: 36px; text-align: right; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(14,12,10,.55); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--paper); max-width: 680px; width: 100%;
+    max-height: 90vh; overflow-y: auto; border: 1px solid var(--border);
+    animation: modalIn .2s ease;
+  }
+  @keyframes modalIn { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:scale(1); } }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 24px 28px; border-bottom: 1px solid var(--border); gap: 12px; }
+  .modal-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; padding: 0 4px; }
+  .modal-body { padding: 24px 28px; }
+  .modal-score { display: flex; align-items: baseline; gap: 12px; margin-bottom: 1.5rem; }
+  .modal-score-num { font-family: var(--serif); font-size: 3.5rem; font-weight: 700; line-height: 1; }
+  .modal-score-num span { color: var(--accent); }
+  .modal-score-pct { font-size: 15px; color: var(--muted); }
+  .modal-answers { display: flex; flex-direction: column; gap: 10px; }
+  .modal-q { border: 1px solid var(--border); padding: 14px 18px; }
+  .modal-q.hit { border-color: var(--correct); background: var(--correct-bg); }
+  .modal-q.miss { border-color: var(--wrong); background: var(--wrong-bg); }
+  .modal-q-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .modal-q-text { font-size: 13px; font-weight: 500; line-height: 1.4; flex: 1; }
+  .modal-badge { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; font-weight: 500; white-space: nowrap; }
+  .hit .modal-badge { background: var(--correct); color: white; }
+  .miss .modal-badge { background: var(--wrong); color: white; }
+  .modal-ans { font-size: 12px; line-height: 1.6; }
+  .modal-ans .correct-ans { color: var(--correct); font-weight: 500; }
+  .modal-ans .wrong-ans { color: var(--wrong); }
+
+  /* FILTER */
+  .filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filter-input {
+    padding: 9px 14px; border: 1px solid var(--border);
+    background: white; font-family: var(--sans); font-size: 13px;
+    color: var(--ink); outline: none; flex: 1; min-width: 180px;
+  }
+  .filter-input:focus { border-color: var(--ink); }
+  .filter-select {
+    padding: 9px 14px; border: 1px solid var(--border);
+    background: white; font-family: var(--sans); font-size: 13px;
+    color: var(--ink); outline: none; cursor: pointer;
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+  .tab-btn { padding: 12px 24px; background: transparent; border: none; border-bottom: 2px solid transparent; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); letter-spacing: .04em; margin-bottom: -1px; transition: all .15s; }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--ink); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  @media (max-width: 600px) {
+    .rank-card { grid-template-columns: 40px 1fr auto; gap: 10px; padding: 12px 14px; }
+    .rank-score { font-size: 1.5rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .modal-body { padding: 18px; }
+    .modal-header { padding: 18px; }
+    .header-top { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-top">
+    <div class="header-left">
+      <div class="eyebrow">Painel do Professor</div>
+      <h1 class="page-title">Relatório <em>de</em><br>Respostas</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="exportCSV()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Exportar CSV
+      </button>
+      <button class="btn danger" onclick="confirmClear()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 2h4M5 4v9a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Limpar dados
+      </button>
+    </div>
+  </div>
+  <div class="stats-row" id="stats-row">
+    <div class="stat-cell"><div class="stat-label">Respostas</div><div class="stat-value" id="s-total">—</div></div>
+    <div class="stat-cell"><div class="stat-label">Média geral</div><div class="stat-value accent" id="s-avg">—</div><div class="stat-sub" id="s-avg-pct"></div></div>
+    <div class="stat-cell"><div class="stat-label">Maior nota</div><div class="stat-value" id="s-max">—</div></div>
+    <div class="stat-cell"><div class="stat-label">Menor nota</div><div class="stat-value" id="s-min">—</div></div>
+    <div class="stat-cell"><div class="stat-label">Taxa de acerto</div><div class="stat-value" id="s-rate">—</div></div>
+  </div>
+</div>
+
+<div class="main">
+  <div id="empty-state" class="empty-state" style="display:none">
+    <div class="empty-icon">0</div>
+    <div class="empty-title">Nenhuma resposta ainda</div>
+    <div class="empty-desc">Quando os alunos completarem o quiz, os resultados aparecerão aqui automaticamente.</div>
+    <a href="quiz.html" class="btn primary" style="text-decoration:none;margin:0 auto">
+      Ver o quiz
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+
+  <div id="main-content">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('ranking')">Ranking</button>
+      <button class="tab-btn" onclick="switchTab('questions')">Por questão</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-ranking">
+      <div class="section">
+        <div class="filter-row">
+          <input class="filter-input" type="text" id="search-input" placeholder="Buscar aluno..." oninput="renderRanking()">
+          <select class="filter-select" id="sort-select" onchange="renderRanking()">
+            <option value="score">Ordenar: Maior nota</option>
+            <option value="score-asc">Ordenar: Menor nota</option>
+            <option value="date">Ordenar: Mais recente</option>
+            <option value="name">Ordenar: Nome A–Z</option>
+          </select>
+        </div>
+        <div class="ranking-list" id="ranking-list"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-questions">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Desempenho por questão</div>
+          <div class="section-count" id="q-count"></div>
+        </div>
+        <div class="q-analysis" id="q-analysis"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ALUNO -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="m-name"></div>
+        <div class="modal-sub" id="m-date"></div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-score">
+        <div class="modal-score-num" id="m-score"></div>
+        <div class="modal-score-pct" id="m-pct"></div>
+      </div>
+      <div class="modal-answers" id="m-answers"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'quiz_design_results';
+const LETTERS = ['A','B','C','D'];
+const Q = [
+  { q:"O que é design gráfico?", opts:["A arte de programar sites e aplicativos","A prática de comunicar visualmente ideias usando imagens, cores e tipografia","O processo de fotografar produtos para publicidade","Uma técnica de impressão industrial em larga escala"], answer:1 },
+  { q:"Quais são as cores primárias no modelo de impressão (pigmento)?", opts:["Vermelho, verde e azul","Ciano, magenta e amarelo","Laranja, roxo e verde","Branco, preto e cinza"], answer:1 },
+  { q:"O que é tipografia no design gráfico?", opts:["A técnica de criar fotografias artísticas","O estudo e uso de fontes e textos de forma visual e comunicativa","O processo de escolher paletas de cores para uma marca","A arte de desenhar ilustrações à mão livre"], answer:1 },
+  { q:"O que é 'espaço negativo' em composição visual?", opts:["Cores escuras usadas no fundo de uma peça gráfica","O espaço vazio ao redor e entre os elementos da composição","Um tipo de filtro fotográfico em preto e branco","A margem mínima exigida por gráficas para impressão"], answer:1 },
+  { q:"Qual formato de imagem suporta fundo transparente, ideal para logos?", opts:["JPG","BMP","PNG","TIFF"], answer:2 },
+  { q:"No Canva, o que é um 'template'?", opts:["Um banco de fontes gratuitas para download","Um modelo de design pré-criado que pode ser personalizado","Uma ferramenta para edição profissional de fotos","Um tipo de arquivo exportado em formato PDF"], answer:1 },
+  { q:"Qual princípio diz que elementos relacionados devem ficar próximos?", opts:["Contraste","Repetição","Proximidade","Alinhamento"], answer:2 },
+  { q:"O que é identidade visual de uma marca?", opts:["O conjunto de elementos visuais (logo, cores, fontes) que identificam uma marca","O número de seguidores nas redes sociais de uma empresa","O catálogo completo de produtos vendidos por uma empresa","O histórico de campanhas publicitárias de uma marca"], answer:0 },
+  { q:"O que são cores análogas no círculo cromático?", opts:["Cores diretamente opostas no círculo cromático","Cores que ficam lado a lado no círculo cromático","As três cores primárias reunidas","Tons de cinza em diferentes intensidades"], answer:1 },
+  { q:"Qual é a função do 'alinhamento' como princípio de design?", opts:["Criar contraste entre elementos usando cores opostas","Repetir elementos visuais para criar ritmo na composição","Organizar elementos em relação a um eixo, criando ordem visual","Aumentar o tamanho dos elementos mais importantes"], answer:2 }
+];
+
+let allData = [];
+let activeTab = 'ranking';
+
+function load() {
+  allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  render();
+}
+
+function render() {
+  const empty = document.getElementById('empty-state');
+  const main = document.getElementById('main-content');
+  if (allData.length === 0) {
+    empty.style.display = 'block';
+    main.style.display = 'none';
+    ['s-total','s-avg','s-avg-pct','s-max','s-min','s-rate'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+    return;
+  }
+  empty.style.display = 'none';
+  main.style.display = 'block';
+  renderStats();
+  renderRanking();
+  renderQuestionAnalysis();
+}
+
+function renderStats() {
+  const n = allData.length;
+  const scores = allData.map(d => d.score);
+  const avg = scores.reduce((a,b) => a+b, 0) / n;
+  const max = Math.max(...scores);
+  const min = Math.min(...scores);
+  const totalAnswers = allData.reduce((acc, d) => acc + d.answers.filter((a, i) => a === Q[i].answer).length, 0);
+  const rate = Math.round((totalAnswers / (n * 10)) * 100);
+
+  document.getElementById('s-total').textContent = n;
+  document.getElementById('s-avg').textContent = avg.toFixed(1);
+  document.getElementById('s-avg-pct').textContent = `${Math.round((avg / 10) * 100)}% de acerto`;
+  document.getElementById('s-max').textContent = `${max}/10`;
+  document.getElementById('s-min').textContent = `${min}/10`;
+  document.getElementById('s-rate').textContent = `${rate}%`;
+}
+
+function renderRanking() {
+  const search = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const sort = document.getElementById('sort-select')?.value || 'score';
+  let data = [...allData];
+  if (search) data = data.filter(d => d.name.toLowerCase().includes(search));
+  data.sort((a, b) => {
+    if (sort === 'score') return b.score - a.score || new Date(b.date) - new Date(a.date);
+    if (sort === 'score-asc') return a.score - b.score || new Date(b.date) - new Date(a.date);
+    if (sort === 'date') return new Date(b.date) - new Date(a.date);
+    if (sort === 'name') return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const medals = ['🥇','🥈','🥉'];
+  // Global ranking positions (before search filter, by score)
+  const globalRanked = [...allData].sort((a,b) => b.score - a.score || new Date(b.date) - new Date(a.date));
+
+  let html = '';
+  data.forEach((entry, idx) => {
+    const globalIdx = globalRanked.findIndex(e => e.id === entry.id);
+    const pos = globalIdx + 1;
+    const rankCls = pos <= 3 ? `rank-${pos}` : '';
+    const posDisplay = pos <= 3 ? medals[pos - 1] : `${pos}º`;
+    const barW = Math.round((entry.score / 10) * 100);
+    const dateStr = new Date(entry.date).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+    html += `<div class="rank-card ${rankCls}" onclick="openModal(${entry.id})">
+      <div class="rank-pos">${posDisplay}</div>
+      <div class="rank-info">
+        <div class="rank-name">${esc(entry.name)}</div>
+        <div class="rank-date">${dateStr}</div>
+      </div>
+      <div class="rank-score-wrap">
+        <div class="rank-score">${entry.score}<span style="font-size:1rem;color:var(--muted)">/10</span></div>
+        <div class="rank-pct">${entry.pct}%</div>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${barW}%"></div></div>
+      </div>
+    </div>`;
+  });
+
+  if (!html) html = `<div style="padding:3rem;text-align:center;color:var(--muted);font-size:14px;">Nenhum aluno encontrado.</div>`;
+  document.getElementById('ranking-list').innerHTML = html;
+}
+
+function renderQuestionAnalysis() {
+  const n = allData.length;
+  document.getElementById('q-count').textContent = `${n} resposta${n !== 1 ? 's' : ''}`;
+
+  let html = '';
+  Q.forEach((q, qi) => {
+    const hits = allData.filter(d => d.answers[qi] === q.answer).length;
+    const hitPct = n > 0 ? Math.round((hits / n) * 100) : 0;
+    const errPct = 100 - hitPct;
+
+    // Bar color
+    const barColor = hitPct >= 70 ? 'var(--correct)' : hitPct >= 40 ? 'var(--gold)' : 'var(--wrong)';
+
+    html += `<div class="qa-row">
+      <div class="qa-header">
+        <div class="qa-text">${qi + 1}. ${q.q}</div>
+        <div class="qa-stats">
+          <span class="qa-stat good">${hits} acertos</span>
+          <span class="qa-stat" style="color:var(--muted)">·</span>
+          <span class="qa-stat bad">${n - hits} erros</span>
+        </div>
+      </div>
+      <div class="qa-bar-row">
+        <div class="qa-bar-bg">
+          <div class="qa-bar-fill" style="width:${hitPct}%;background:${barColor}"></div>
+        </div>
+        <div class="qa-bar-label">${hitPct}%</div>
+      </div>`;
+
+    // Optional: show which option students chose most
+    if (n > 0) {
+      const optCounts = [0,0,0,0];
+      allData.forEach(d => { if (d.answers[qi] !== null) optCounts[d.answers[qi]]++; });
+      const wrongChoices = optCounts.map((c,i) => ({i,c})).filter(x => x.i !== q.answer && x.c > 0).sort((a,b) => b.c - a.c);
+      if (wrongChoices.length > 0) {
+        html += `<div style="margin-top:10px;font-size:12px;color:var(--muted)">Opção mais escolhida errada: <strong style="color:var(--wrong)">${LETTERS[wrongChoices[0].i]} — ${q.opts[wrongChoices[0].i]}</strong> (${wrongChoices[0].c}×)</div>`;
+      }
+    }
+
+    html += `</div>`;
+  });
+
+  document.getElementById('q-analysis').innerHTML = html;
+}
+
+function openModal(id) {
+  const entry = allData.find(e => e.id === id);
+  if (!entry) return;
+
+  document.getElementById('m-name').textContent = entry.name;
+  document.getElementById('m-date').textContent = new Date(entry.date).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  document.getElementById('m-score').innerHTML = `${entry.score}<span>/10</span>`;
+  document.getElementById('m-pct').textContent = `${entry.pct}% de acertos`;
+
+  let html = '';
+  Q.forEach((q, qi) => {
+    const ua = entry.answers[qi];
+    const ok = ua === q.answer;
+    html += `<div class="modal-q ${ok ? 'hit' : 'miss'}">
+      <div class="modal-q-header">
+        <div class="modal-q-text">${qi + 1}. ${q.q}</div>
+        <span class="modal-badge">${ok ? '✓ Acerto' : '✗ Erro'}</span>
+      </div>
+      <div class="modal-ans">
+        ${!ok ? `<div class="wrong-ans">Respondeu: ${LETTERS[ua]} — ${q.opts[ua]}</div>` : ''}
+        <div class="correct-ans">Correto: ${LETTERS[q.answer]} — ${q.opts[q.answer]}</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('m-answers').innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ['ranking','questions'][i] === tab));
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', ['tab-ranking','tab-questions'][i] === `tab-${tab}`));
+}
+
+function exportCSV() {
+  if (!allData.length) return alert('Nenhum dado para exportar.');
+  const headers = ['Nome','Pontuação','Percentual','Data', ...Q.map((_,i) => `Q${i+1}`)];
+  const rows = allData.map(d => [
+    `"${d.name}"`,
+    d.score,
+    `${d.pct}%`,
+    new Date(d.date).toLocaleDateString('pt-BR'),
+    ...d.answers.map((a, i) => a === Q[i].answer ? 'Acerto' : 'Erro')
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `relatorio-quiz-design-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function confirmClear() {
+  if (confirm('Tem certeza que deseja apagar TODOS os dados de respostas? Esta ação não pode ser desfeita.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    allData = [];
+    render();
+  }
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+load();
+
+// Auto-refresh a cada 15s para capturar novos alunos
+setInterval(load, 15000);
+</script>
+</body>
+</html>
