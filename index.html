@@ -249,9 +249,16 @@
   </button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/** Substitua pelos dados do seu projeto: Supabase → Settings → API **/
+const SUPABASE_URL = 'https://SEU_PROJETO.supabase.co';
+const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_PUBLICA';
+
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const LETTERS = ['A','B','C','D'];
-const STORAGE_KEY = 'quiz_design_results';
 
 const Q = [
   { q:"O que é design gráfico?", opts:["A arte de programar sites e aplicativos","A prática de comunicar visualmente ideias usando imagens, cores e tipografia","O processo de fotografar produtos para publicidade","Uma técnica de impressão industrial em larga escala"], answer:1, tip:"Design gráfico é comunicação visual — unir elementos como imagens, cores e texto para transmitir uma mensagem de forma clara e eficaz." },
@@ -362,22 +369,25 @@ function pick(i) {
   }
 }
 
-function showResult() {
+async function showResult() {
   const correct = answers.filter((a, i) => a === Q[i].answer).length;
+  const wrong = 10 - correct;
   const pct = Math.round((correct / 10) * 100);
+  const nota = Number(((correct / 10) * 10).toFixed(1));
 
-  // Salvar no localStorage
-  const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  const entry = {
-    id: Date.now(),
-    name: studentName,
-    score: correct,
-    pct,
-    answers: [...answers],
-    date: new Date().toISOString()
+  const row = {
+    nome: studentName.trim(),
+    acertos: correct,
+    erros: wrong,
+    nota,
+    respostas: [...answers]
   };
-  stored.push(entry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+
+  const { error } = await supabaseClient.from('resultados').insert(row);
+  if (error) {
+    console.error(error);
+    alert('Não foi possível salvar seu resultado. Verifique a conexão e as configurações do Supabase.');
+  }
 
   document.getElementById('quiz-wrap').style.display = 'none';
   document.getElementById('result-wrap').style.display = 'block';

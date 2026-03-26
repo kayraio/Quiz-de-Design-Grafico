@@ -182,6 +182,13 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
+  .student-summary { border-top: 1px solid var(--border); padding: 0; }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .summary-table th, .summary-table td { padding: 12px 2rem; text-align: left; border-bottom: 1px solid var(--border); }
+  .summary-table th { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--cream); }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table .nota-cell { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; text-align: right; }
+
   @media (max-width: 600px) {
     .rank-card { grid-template-columns: 40px 1fr auto; gap: 10px; padding: 12px 14px; }
     .rank-score { font-size: 1.5rem; }
@@ -189,6 +196,7 @@
     .modal-body { padding: 18px; }
     .modal-header { padding: 18px; }
     .header-top { flex-direction: column; }
+    .summary-table th, .summary-table td { padding: 10px 1rem; }
   }
 </style>
 </head>
@@ -218,6 +226,9 @@
     <div class="stat-cell"><div class="stat-label">Menor nota</div><div class="stat-value" id="s-min">—</div></div>
     <div class="stat-cell"><div class="stat-label">Taxa de acerto</div><div class="stat-value" id="s-rate">—</div></div>
   </div>
+  <div class="student-summary" id="student-summary-wrap" style="display:none">
+    <table class="summary-table" id="student-summary-table" aria-label="Nome e nota por aluno"></table>
+  </div>
 </div>
 
 <div class="main">
@@ -225,7 +236,7 @@
     <div class="empty-icon">0</div>
     <div class="empty-title">Nenhuma resposta ainda</div>
     <div class="empty-desc">Quando os alunos completarem o quiz, os resultados aparecerão aqui automaticamente.</div>
-    <a href="quiz.html" class="btn primary" style="text-decoration:none;margin:0 auto">
+    <a href="/" class="btn primary" style="text-decoration:none;margin:0 auto">
       Ver o quiz
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
@@ -284,8 +295,15 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const STORAGE_KEY = 'quiz_design_results';
+/** Substitua pelos dados do seu projeto: Supabase → Settings → API **/
+const SUPABASE_URL = 'https://SEU_PROJETO.supabase.co';
+const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_PUBLICA';
+
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const LETTERS = ['A','B','C','D'];
 const Q = [
   { q:"O que é design gráfico?", opts:["A arte de programar sites e aplicativos","A prática de comunicar visualmente ideias usando imagens, cores e tipografia","O processo de fotografar produtos para publicidade","Uma técnica de impressão industrial em larga escala"], answer:1 },
@@ -303,17 +321,45 @@ const Q = [
 let allData = [];
 let activeTab = 'ranking';
 
-function load() {
-  allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+function mapRow(row) {
+  const acertos = row.acertos ?? 0;
+  const respostas = Array.isArray(row.respostas) ? row.respostas : new Array(10).fill(null);
+  const pct = Math.round((acertos / 10) * 100);
+  const notaVal = row.nota != null ? Number(row.nota) : (acertos / 10) * 10;
+  return {
+    id: row.id,
+    name: row.nome || '—',
+    score: acertos,
+    pct,
+    nota: notaVal,
+    answers: respostas,
+    date: row.created_at || new Date().toISOString()
+  };
+}
+
+async function load() {
+  const { data, error } = await supabaseClient
+    .from('resultados')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    allData = [];
+  } else {
+    allData = (data || []).map(mapRow);
+  }
   render();
 }
 
 function render() {
   const empty = document.getElementById('empty-state');
   const main = document.getElementById('main-content');
+  const summaryWrap = document.getElementById('student-summary-wrap');
   if (allData.length === 0) {
     empty.style.display = 'block';
     main.style.display = 'none';
+    if (summaryWrap) summaryWrap.style.display = 'none';
     ['s-total','s-avg','s-avg-pct','s-max','s-min','s-rate'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = '—';
@@ -322,25 +368,40 @@ function render() {
   }
   empty.style.display = 'none';
   main.style.display = 'block';
+  if (summaryWrap) summaryWrap.style.display = 'block';
   renderStats();
+  renderStudentSummaryTable();
   renderRanking();
   renderQuestionAnalysis();
 }
 
+function renderStudentSummaryTable() {
+  const table = document.getElementById('student-summary-table');
+  if (!table) return;
+  const sorted = [...allData].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  let html = '<thead><tr><th>Nome</th><th class="nota-cell">Nota</th></tr></thead><tbody>';
+  sorted.forEach(d => {
+    const n = typeof d.nota === 'number' ? d.nota.toFixed(1) : String(d.score);
+    html += `<tr><td>${esc(d.name)}</td><td class="nota-cell">${n}</td></tr>`;
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
 function renderStats() {
   const n = allData.length;
-  const scores = allData.map(d => d.score);
-  const avg = scores.reduce((a,b) => a+b, 0) / n;
-  const max = Math.max(...scores);
-  const min = Math.min(...scores);
+  const notas = allData.map(d => (typeof d.nota === 'number' ? d.nota : d.score));
+  const avg = notas.reduce((a, b) => a + b, 0) / n;
+  const max = Math.max(...notas);
+  const min = Math.min(...notas);
   const totalAnswers = allData.reduce((acc, d) => acc + d.answers.filter((a, i) => a === Q[i].answer).length, 0);
   const rate = Math.round((totalAnswers / (n * 10)) * 100);
 
   document.getElementById('s-total').textContent = n;
   document.getElementById('s-avg').textContent = avg.toFixed(1);
-  document.getElementById('s-avg-pct').textContent = `${Math.round((avg / 10) * 100)}% de acerto`;
-  document.getElementById('s-max').textContent = `${max}/10`;
-  document.getElementById('s-min').textContent = `${min}/10`;
+  document.getElementById('s-avg-pct').textContent = `${Math.round((avg / 10) * 100)}% em relação à nota máxima`;
+  document.getElementById('s-max').textContent = max.toFixed(1);
+  document.getElementById('s-min').textContent = min.toFixed(1);
   document.getElementById('s-rate').textContent = `${rate}%`;
 }
 
@@ -370,7 +431,7 @@ function renderRanking() {
     const barW = Math.round((entry.score / 10) * 100);
     const dateStr = new Date(entry.date).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
 
-    html += `<div class="rank-card ${rankCls}" onclick="openModal(${entry.id})">
+    html += `<div class="rank-card ${rankCls}" onclick="openModal('${entry.id}')">
       <div class="rank-pos">${posDisplay}</div>
       <div class="rank-info">
         <div class="rank-name">${esc(entry.name)}</div>
@@ -494,12 +555,16 @@ function exportCSV() {
   a.click();
 }
 
-function confirmClear() {
-  if (confirm('Tem certeza que deseja apagar TODOS os dados de respostas? Esta ação não pode ser desfeita.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    allData = [];
-    render();
+async function confirmClear() {
+  if (!confirm('Tem certeza que deseja apagar TODOS os dados de respostas no banco? Esta ação não pode ser desfeita.')) return;
+  const { error } = await supabaseClient.from('resultados').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  if (error) {
+    console.error(error);
+    alert('Não foi possível limpar. Verifique a política RLS (DELETE) no Supabase ou apague manualmente na tabela.');
+    return;
   }
+  allData = [];
+  render();
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
