@@ -386,7 +386,8 @@ async function showResult() {
   const { error } = await supabaseClient.from('resultados').insert(row);
   if (error) {
     console.error(error);
-    alert('Não foi possível salvar seu resultado. Verifique a conexão e as configurações do Supabase.');
+    const det = [error.message, error.details, error.hint].filter(Boolean).join(' — ');
+    alert('Não foi possível salvar no Supabase.\n\n' + det + '\n\n(Abra F12 → Console para mais detalhes.)');
   }
 
   document.getElementById('quiz-wrap').style.display = 'none';
