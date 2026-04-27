@@ -306,16 +306,201 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const LETTERS = ['A','B','C','D'];
 const Q = [
-  { q:"O que é design gráfico?", opts:["A arte de programar sites e aplicativos","A prática de comunicar visualmente ideias usando imagens, cores e tipografia","O processo de fotografar produtos para publicidade","Uma técnica de impressão industrial em larga escala"], answer:1 },
-  { q:"Quais são as cores primárias no modelo de impressão (pigmento)?", opts:["Vermelho, verde e azul","Ciano, magenta e amarelo","Laranja, roxo e verde","Branco, preto e cinza"], answer:1 },
-  { q:"O que é tipografia no design gráfico?", opts:["A técnica de criar fotografias artísticas","O estudo e uso de fontes e textos de forma visual e comunicativa","O processo de escolher paletas de cores para uma marca","A arte de desenhar ilustrações à mão livre"], answer:1 },
-  { q:"O que é 'espaço negativo' em composição visual?", opts:["Cores escuras usadas no fundo de uma peça gráfica","O espaço vazio ao redor e entre os elementos da composição","Um tipo de filtro fotográfico em preto e branco","A margem mínima exigida por gráficas para impressão"], answer:1 },
-  { q:"Qual formato de imagem suporta fundo transparente, ideal para logos?", opts:["JPG","BMP","PNG","TIFF"], answer:2 },
-  { q:"No Canva, o que é um 'template'?", opts:["Um banco de fontes gratuitas para download","Um modelo de design pré-criado que pode ser personalizado","Uma ferramenta para edição profissional de fotos","Um tipo de arquivo exportado em formato PDF"], answer:1 },
-  { q:"Qual princípio diz que elementos relacionados devem ficar próximos?", opts:["Contraste","Repetição","Proximidade","Alinhamento"], answer:2 },
-  { q:"O que é identidade visual de uma marca?", opts:["O conjunto de elementos visuais (logo, cores, fontes) que identificam uma marca","O número de seguidores nas redes sociais de uma empresa","O catálogo completo de produtos vendidos por uma empresa","O histórico de campanhas publicitárias de uma marca"], answer:0 },
-  { q:"O que são cores análogas no círculo cromático?", opts:["Cores diretamente opostas no círculo cromático","Cores que ficam lado a lado no círculo cromático","As três cores primárias reunidas","Tons de cinza em diferentes intensidades"], answer:1 },
-  { q:"Qual é a função do 'alinhamento' como princípio de design?", opts:["Criar contraste entre elementos usando cores opostas","Repetir elementos visuais para criar ritmo na composição","Organizar elementos em relação a um eixo, criando ordem visual","Aumentar o tamanho dos elementos mais importantes"], answer:2 }
+  {
+    "q": "O que caracteriza o conceito de 'Logística Reversa' no contexto do lixo eletrônico?",
+    "opts": [
+      "O processo de fabricar computadores com peças biodegradáveis.",
+      "O envio de equipamentos novos da fábrica para as lojas de varejo.",
+      "O retorno de produtos descartados ao ciclo produtivo para reaproveitamento ou descarte correto.",
+      "A venda de computadores usados em sites de leilão internacional."
+    ],
+    "answer": 2,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "A logística reversa garante que o resíduo volte para quem sabe tratá-lo, evitando a poluição."
+  },
+  {
+    "q": "Qual é o principal objetivo da ONG Programando o Futuro ao gerir os CRCs?",
+    "opts": [
+      "Vender peças de luxo para colecionadores de tecnologia antiga.",
+      "Promover a inclusão digital e a preservação ambiental através da metarreciclagem.",
+      "Desenvolver novos softwares de inteligência artificial para empresas privadas.",
+      "Exportar lixo eletrônico para outros países da América Latina."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "O foco é transformar lixo em ferramentas de cidadania e educação."
+  },
+  {
+    "q": "No contexto dos CRCs, como podemos definir a 'Metarreciclagem'?",
+    "opts": [
+      "A desintegração total de metais preciosos usando ácidos químicos.",
+      "O uso de robôs avançados para criar novos microchips do zero.",
+      "A apropriação tecnológica que transforma lixo eletrônico em ferramentas de transformação social.",
+      "Um curso de programação focado exclusivamente em design de hardware."
+    ],
+    "answer": 2,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Metarreciclagem é reciclar a função do objeto para que ele sirva à comunidade."
+  },
+  {
+    "q": "O que acontece com os componentes eletrônicos que não podem mais ser consertados nos CRCs?",
+    "opts": [
+      "São enterrados em aterros sanitários comuns junto com o lixo doméstico.",
+      "São enviados para indústrias especializadas em reciclagem de matérias-primas e metais pesados.",
+      "São queimados em altas temperaturas para gerar energia elétrica para a cidade.",
+      "São doados para museus de tecnologia como peças de exposição permanente."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "O material é separado e enviado para reciclagem industrial de metais e plásticos."
+  },
+  {
+    "q": "Por que o descarte de eletrônicos no lixo comum é considerado perigoso para a natureza?",
+    "opts": [
+      "Porque os computadores podem explodir com o calor do sol.",
+      "Devido à presença de metais pesados como chumbo e mercúrio, que contaminam o solo e a água.",
+      "Porque o plástico dos monitores atrai insetos transmissores de doenças.",
+      "Pois os componentes eletrônicos nunca se decompõem, ocupando espaço para sempre."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Metais pesados são tóxicos e podem entrar na cadeia alimentar através da água contaminada."
+  },
+  {
+    "q": "O que significa a sigla CRC?",
+    "opts": [
+      "Centro de Recuperação de Componentes",
+      "Centro de Recondicionamento de Computadores",
+      "Conselho Regional de Computação",
+      "Comitê de Reciclagem de Comunicação"
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Os CRCs são espaços destinados ao tratamento de resíduos eletrônicos e inclusão digital."
+  },
+  {
+    "q": "Além de recuperar máquinas, qual o impacto social de um Centro de Recondicionamento de Computadores (CRC)?",
+    "opts": [
+      "Apenas a venda de peças baratas para empresas de TI.",
+      "A criação de novos modelos de smartphones para o governo.",
+      "A formação profissional de jovens em situação de vulnerabilidade e a democratização do acesso à tecnologia.",
+      "O desenvolvimento de jogos eletrônicos para competições internacionais."
+    ],
+    "answer": 2,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Os CRCs funcionam como escolas, ensinando manutenção de computadores e robótica."
+  },
+  {
+    "q": "Qual é a primeira etapa quando um equipamento chega a um CRC?",
+    "opts": [
+      "É enviado imediatamente para a trituração de metais.",
+      "É higienizado e passa por uma triagem para avaliar se pode ser consertado ou se será reciclado.",
+      "É colocado à venda em uma loja física da ONG.",
+      "É desmontado e todas as suas peças são jogadas em um tanque de água."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "A triagem separa o que tem 'salvação' do que deve seguir para a reciclagem de matéria-prima."
+  },
+  {
+    "q": "O trabalho da Programando o Futuro faz parte da 'Economia Circular'. O que isso significa?",
+    "opts": [
+      "Uma economia baseada apenas na troca de moedas digitais.",
+      "Um sistema onde o lucro circula apenas entre grandes empresas de tecnologia.",
+      "Um modelo de produção que foca em reduzir, reutilizar e reciclar, mantendo os materiais em uso.",
+      "A venda de produtos em lojas que possuem formato circular ou arredondado."
+    ],
+    "answer": 2,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "A economia circular foca no reaproveitamento constante em vez do descarte."
+  },
+  {
+    "q": "Para onde vão os computadores recondicionados pela Programando o Futuro?",
+    "opts": [
+      "Para o lixo reciclável da prefeitura.",
+      "Para pontos de inclusão digital, escolas públicas, bibliotecas e telecentros.",
+      "São vendidos para outros países como equipamentos de última geração.",
+      "São desmontados e transformados em brinquedos de plástico."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "O objetivo é que a tecnologia chegue a quem mais precisa."
+  },
+  {
+    "q": "Como o cidadão comum pode participar da logística reversa promovida pela Programando o Futuro?",
+    "opts": [
+      "Deixando o lixo eletrônico na calçada para o caminhão de lixo comum.",
+      "Guardando todos os aparelhos velhos em casa para sempre.",
+      "Levando os aparelhos sem uso até um Ponto de Entrega Voluntária (PEV) ou drive-thru de descarte.",
+      "Desmontando os aparelhos e jogando as peças no esgoto."
+    ],
+    "answer": 2,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Descartar no local correto garante que o aparelho não acabe em um lixão."
+  },
+  {
+    "q": "Quais são os principais cursos gratuitos oferecidos pela Programando o Futuro?",
+    "opts": [
+      "Manutenção de computadores e celulares, informática básica, design gráfico e reciclagem.",
+      "Design de moda, gastronomia e gestão hoteleira internacional.",
+      "Engenharia civil pesada e operação de grandes máquinas de mineração.",
+      "Marketing político, venda de criptomoedas e investimentos na bolsa."
+    ],
+    "answer": 0,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Os cursos capacitam os alunos para o mercado de trabalho e para a preservação ambiental."
+  },
+  {
+    "q": "O que é a 'Obsolescência Programada'?",
+    "opts": [
+      "O ato de programar computadores para trabalharem mais rápido.",
+      "A prática de fabricar produtos com vida útil curta para forçar a compra de um novo.",
+      "O treinamento necessário para aprender a usar um sistema operacional novo.",
+      "A atualização automática de antivírus em computadores antigos."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Ao recondicionar máquinas, a Programando o Futuro combate esse ciclo de desperdício."
+  },
+  {
+    "q": "O que significa a sigla REEE?",
+    "opts": [
+      "Reutilização de Energia Elétrica Estática.",
+      "Redução de Emissão de Enxofre em Eletrônicos.",
+      "Resíduos de Equipamentos Elétricos e Eletrônicos.",
+      "Reciclagem de Equipamentos de Engenharia Especializada."
+    ],
+    "answer": 2,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "REEE é o termo técnico para o que chamamos popularmente de 'lixo eletrônico'."
+  },
+  {
+    "q": "O que é a 'Mineração Urbana'?",
+    "opts": [
+      "A busca por ouro e prata dentro de cavernas nas cidades.",
+      "A recuperação de metais preciosos de produtos descartados, como placas de circuito.",
+      "A construção de prédios usando apenas sucata de ferro.",
+      "O processo de cavar o asfalto para encontrar fiação antiga."
+    ],
+    "answer": 1,
+    "selected_option": null,
+    "confirmed": false,
+    "tip": "Placas de computador contêm metais valiosos como ouro e cobre que podem ser recuperados."
+  }
 ];
 
 let allData = [];

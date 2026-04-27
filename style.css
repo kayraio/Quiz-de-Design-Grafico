@@ -25,7 +25,6 @@
     padding: 15px;
     background-color: #ffffff;      /* Deixa o fundo branco e leve */
 }
-
 .logo-topo {
     width: 50px;
     height: 50px;
@@ -33,7 +32,7 @@
 
 .titulo-centro {
     margin: 0;
-    font-size: 22px;
+    font-size: 26px;
     font-weight: bold;
     color: #564dca; /* AQUI você muda para a cor que quiser (Laranja, Azul, etc) */
 }
@@ -41,6 +40,7 @@
 .vazio {
     width: 50px; /* Mesma largura da logo para equilibrar o centro */
 }
+
 
   /* NOME */
   .name-screen {
@@ -53,9 +53,9 @@
     overflow: hidden;
   }
   .name-screen::before {
-    content: 'DESIGN';
+    content: 'RECICLAGEM';
     position: absolute; right: -0.05em; bottom: -0.15em;
-    font-family: var(--serif); font-size: clamp(8rem,22vw,22rem);
+    font-family: var(--serif); font-size: clamp(5rem,10vw,10rem);
     font-weight: 700; color: var(--cream); line-height: 1;
     pointer-events: none; user-select: none;
   }
@@ -66,11 +66,12 @@
   }
   .eyebrow::before { content:''; display:block; width:32px; height:1px; background: #18920d;}
   .name-screen h1 {
+    font-size: 300px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: clamp(3rem,8vw,7rem);
     font-weight: 700; line-height: .92; letter-spacing: -.02em;
     margin-bottom: 1.5rem; max-width: 12ch;
   }
-  .name-screen h1 em { font-style: italic; font-weight: 400; color: #564dca; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+  .name-screen h1 em {font-size: 300; font-style: italic; font-weight: 400; color: #564dca; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
   .name-desc { font-size: clamp(1rem,1.5vw,1.1rem); color: var(--muted); max-width: 42ch; font-weight: 300; margin-bottom: 2.5rem; line-height: 1.7; }
   .name-form { display: flex; flex-direction: column; gap: 12px; max-width: 400px; position: relative; z-index: 1; }
   .name-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
@@ -121,6 +122,9 @@
   }
   .opt-btn:hover:not(:disabled) { border-color: var(--ink); background: var(--cream); }
   .opt-btn:disabled { cursor: default; }
+  .opt-btn.selected { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.16); background: #eff6ff; }
+  .opt-btn.selected .opt-letter { color: #1d4ed8; border-color: rgba(37,99,235,.35); }
+  .opt-btn.selected .opt-text { color: #1e3a8a; font-weight: 500; }
   .opt-letter {
     display: flex; align-items: flex-start; justify-content: center;
     padding: 16px 0; font-family: var(--serif); font-size: 15px;
