@@ -1,5 +1,14 @@
 const LETTERS = ["A", "B", "C", "D"];
 
+function getProfessorFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const professor = params.get("professor");
+  return professor && professor.trim() ? professor.trim() : "Geral";
+}
+
+const professorAtual = getProfessorFromUrl();
+console.log("Professor detectado na URL:", professorAtual);
+
 const perguntas = [
   {
     q: "O que caracteriza o conceito de 'Logistica Reversa' no contexto do lixo eletronico?",
@@ -267,7 +276,7 @@ function jumpTo(i) {
 
 function navigate(d) {
   const next = current + d;
-  if (next < 0 || next >= perguntas.length) return;
+  if (next < 0 || next >= TOTAL_PERGUNTAS) return;
   current = next;
   renderQ();
 }
@@ -278,15 +287,14 @@ async function showResult() {
   const percent = Math.round((correct / TOTAL_PERGUNTAS) * 100);
   const nota = Number(((correct / TOTAL_PERGUNTAS) * 10).toFixed(1));
 
-  const payload = {
+  const { error } = await supabaseClient.from("resultados").insert([{
     nome: studentName.trim(),
     acertos: correct,
     erros: wrong,
     nota,
-    respostas: [...answers]
-  };
-
-  const { error } = await supabaseClient.from("resultados").insert(payload);
+    respostas: [...answers],
+    turma: professorAtual
+  }]);
   if (error) {
     console.error(error);
     const detail = [error.message, error.details, error.hint].filter(Boolean).join(" | ");
